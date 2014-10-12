@@ -1,16 +1,28 @@
+/**
+ * class FFT
+ * Description: 
+ * This class is used to determine Fast Fourier Transform of Audio Samples.
+ * 
+ *
+ */
 public class FFT 
 {
-	private ComplexNumber[] samplesInComplex;
 	private float[] originalSamples;
 	private ComplexNumber[] hanningWindowSamples;
 	private ComplexNumber[] FFTResult;
 	
+	/**
+	 * Constructor: float[] -> FFT
+	 * @param samples: The samples of an audio file
+	 * @Effect: The constructor implicitly returns an instance of FFT
+	 * Explanation: The Constructor calculates FFT of the samples provided
+	 */
 	FFT(float[] samples)
 	{
 		originalSamples = samples;
 		hanningWindowSamples = applyHanningWindow(originalSamples);
 		int samplesLength = originalSamples.length;
-		int nearestPowerOfTwo = getNearestPowerOfTwoWithShifts(samplesLength);
+		int nearestPowerOfTwo = getNearestPowerOfTwo(samplesLength);
 		if(samplesLength != nearestPowerOfTwo)
 		{
 			ComplexNumber[] paddedWindowedSamples = padArrayWithZeros(hanningWindowSamples, nearestPowerOfTwo);
@@ -19,20 +31,14 @@ public class FFT
 		{
 			FFTResult = performFFT(hanningWindowSamples, samples.length);
 		}
-		System.out.println(FFTResult.length);
 	}
 	
-	private static ComplexNumber[] padArrayWithZeros(ComplexNumber[] originalArray, int nearestPowerOfTwo)
-	{
-		ComplexNumber[] paddedArray = new ComplexNumber[nearestPowerOfTwo];
-		System.arraycopy(originalArray, 0, paddedArray, 0, originalArray.length);
-		for(int i = originalArray.length; i<nearestPowerOfTwo; i++)
-		{
-			paddedArray[i] = ComplexNumbers.make(0, 0);
-		}
-		return paddedArray;
-	}
-	
+	/**
+	 * calculateMSE : ComplexNumber[] -> double
+	 * @param samplesToCompare : The samples to compare with the FFT samples of this
+	 * @return mse : The Mean Squared Error between the 'samplesToCompare' and FFT
+	 * 				 samples of this
+	 */
 	public double calculateMSE(ComplexNumber[] samplesToCompare)
 	{
 		int samplesLen = FFTResult.length;
@@ -47,42 +53,70 @@ public class FFT
 		return mse/samplesLen;
 	}
 	
+	/**
+	 * getTransformedSamples : -> ComplexNumber[]
+	 * @return FFTResult: The private instance variable which has the samples with FFT applied on them.
+	 */
 	public ComplexNumber[] getTransformedSamples()
 	{
 		return FFTResult;
 	}
 	
+	/**
+	 * static padArrayWithZeros : ComplexNumber[], int -> ComplexNumber[]
+	 * @param originalArray : The array of samples as ComplexNumber
+	 * @param nearestPowerOfTwo : The nearest power of 2 corresponding to the
+	 *                            length of 'originalArray'
+	 * @return paddedArray: The 'originalArray' with new ComplexNumber instances added
+	 * 						to it to make its length an exact power of 2
+	 */
+	private static ComplexNumber[] padArrayWithZeros(ComplexNumber[] originalArray, int nearestPowerOfTwo)
+	{
+		ComplexNumber[] paddedArray = new ComplexNumber[nearestPowerOfTwo];
+		System.arraycopy(originalArray, 0, paddedArray, 0, originalArray.length);
+		for(int i = originalArray.length; i<nearestPowerOfTwo; i++)
+		{
+			paddedArray[i] = ComplexNumbers.make(0, 0);
+		}
+		return paddedArray;
+	}
+	
+	/**
+	 * static applyHanningWindow : folat[] -> ComplexNumber[]
+	 * @param samples : The samples in little endian format
+	 * @return windowedValues : The samples with Hanning Window function 
+	 * 							applied to every sample
+	 */
 	private static ComplexNumber[] applyHanningWindow(float[] samples)
 	{
 		int noOfSamples = samples.length;
-		int halfSamplesLength = noOfSamples/2;
 		ComplexNumber[] windowedValues = new ComplexNumber[noOfSamples];
 		for(int i = 0; i<noOfSamples; i++)
 		{
-			double windowReal = samples[i] * (0.5f + 0.5f * (float) Math.cos(2.0f * (float) Math.PI * i / noOfSamples));
+			double windowReal = samples[i] * 
+					(0.5f + 0.5f * (float) Math.cos(2.0f * (float) Math.PI * i / noOfSamples));
 			windowedValues[i] = ComplexNumbers.make(windowReal, 0);
 		}
 		return windowedValues;
 	}
 	
+	/**
+	 * static performFFT : ComplexNumber[] , int
+	 * @param windowedSamples : The samples with Hanning Window Function applied to every sample
+	 * @param samplesLen : The length of the array 'windowedSamples'
+	 * @return ComplexNumber[] : The array with FFT applied on every element of 'windowedSamples'
+	 */
 	private static ComplexNumber[] performFFT(ComplexNumber[] windowedSamples, int samplesLen)
 	{
-		ComplexNumber[] result = new ComplexNumber[samplesLen];
 		if(samplesLen == 1)
 			return windowedSamples;
-		
+
 		int samplesLenBy2 = samplesLen / 2;
 		
 		ComplexNumber[] evenSamples = new ComplexNumber[samplesLen/2];
 		for (int sampleCount = 0; sampleCount < samplesLenBy2; sampleCount++) 
         {
-			try{
-				evenSamples[sampleCount] = windowedSamples[2 * sampleCount];
-			}
-			catch(ArrayIndexOutOfBoundsException ex)
-			{
-				ex.printStackTrace();
-			}
+			evenSamples[sampleCount] = windowedSamples[2 * sampleCount];
         }
 		ComplexNumber[] evenFFTSamples = performFFT(evenSamples, samplesLenBy2);
 		
@@ -92,8 +126,8 @@ public class FFT
 			oddSamples[sampleCount] = windowedSamples[(2 * sampleCount) + 1];
         }
 		ComplexNumber[] oddFFTSamples = performFFT(oddSamples, samplesLenBy2);
-		
-		
+
+		ComplexNumber[] result = new ComplexNumber[samplesLen];
 		for(int sampleCount = 0; sampleCount<samplesLenBy2; sampleCount++)
 		{
 			// 2*PI*i*k/n
@@ -106,7 +140,13 @@ public class FFT
 		return result;
 	}
 	
-	private static int getNearestPowerOfTwoWithShifts(int n)
+	/**
+	 * static getNearestPowerOfTwo : int -> int
+	 * @param n : An int of which a nearest power of two greater than 'n'
+	 * 			  needs to be finded 
+	 * @return int : The nearest power of 2 greater than 'n'
+	 */
+	private static int getNearestPowerOfTwo(int n)
 	{
 		if((n & (n-1)) == 0)
 			return n;
