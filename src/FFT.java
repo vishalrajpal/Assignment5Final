@@ -73,8 +73,33 @@ public class FFT
 			Complex mulComplex = new Complex(mulReal, mulImag);
 			return mulComplex;
 		}
+		
+		private double absolute()
+		{
+			return Math.hypot(realPart, imaginaryPart);
+		}
+		
+		
 	}
 	
+	public double calculateMSE(Complex[] samplesToCompare)
+	{
+		int samplesLen = FFTResult.length;
+		double mse = 0;
+		for(int i = 0; i<samplesLen; i++)
+		{
+			Complex currentSample = FFTResult[i];
+			Complex sampleToCompare = samplesToCompare[i];
+			Complex complexDiff = currentSample.subtract(sampleToCompare);
+			mse += Math.pow(complexDiff.absolute(), 2);
+		}
+		return mse;
+	}
+	
+	public Complex[] getTransformedSamples()
+	{
+		return FFTResult;
+	}
 	private static Complex[] applyHanningWindow(float[] samples)
 	{
 		int noOfSamples = samples.length;
