@@ -1,6 +1,5 @@
-
-public interface AudioProcessableFile {
-	
+public interface AudioProcessableFile 
+{
 	/**
 	 * readSamples: -> float[]
 	 * @return : The samples of an audio file
