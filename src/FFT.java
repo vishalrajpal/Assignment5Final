@@ -1,10 +1,10 @@
-
 public class FFT 
 {
-	Complex[] samplesInComplex;
-	float[] originalSamples;
-	Complex[] hanningWindowSamples;
-	Complex[] FFTResult;
+	private ComplexNumber[] samplesInComplex;
+	private float[] originalSamples;
+	private ComplexNumber[] hanningWindowSamples;
+	private ComplexNumber[] FFTResult;
+	
 	FFT(float[] samples)
 	{
 		originalSamples = samples;
@@ -13,7 +13,7 @@ public class FFT
 		int nearestPowerOfTwo = getNearestPowerOfTwoWithShifts(samplesLength);
 		if(samplesLength != nearestPowerOfTwo)
 		{
-			Complex[] paddedWindowedSamples = padArrayWithZeros(hanningWindowSamples, nearestPowerOfTwo);
+			ComplexNumber[] paddedWindowedSamples = padArrayWithZeros(hanningWindowSamples, nearestPowerOfTwo);
 			FFTResult = performFFT(paddedWindowedSamples, paddedWindowedSamples.length);
 		}else
 		{
@@ -22,106 +22,58 @@ public class FFT
 		System.out.println(FFTResult.length);
 	}
 	
-	private static Complex[] padArrayWithZeros(Complex[] originalArray, int nearestPowerOfTwo)
+	private static ComplexNumber[] padArrayWithZeros(ComplexNumber[] originalArray, int nearestPowerOfTwo)
 	{
-		Complex[] paddedArray = new Complex[nearestPowerOfTwo];
+		ComplexNumber[] paddedArray = new ComplexNumber[nearestPowerOfTwo];
 		System.arraycopy(originalArray, 0, paddedArray, 0, originalArray.length);
 		for(int i = originalArray.length; i<nearestPowerOfTwo; i++)
 		{
-			paddedArray[i] = new Complex(0);
+			paddedArray[i] = ComplexNumbers.make(0, 0);
 		}
 		return paddedArray;
 	}
 	
-	private static class Complex
-	{
-		private final double realPart;
-		private final double imaginaryPart;
-		
-		Complex(double realPart)
-		{
-			this.realPart = realPart;
-			this.imaginaryPart = 0;
-		}
-		
-		Complex(double realPart, double imagPart)
-		{
-			this.realPart = realPart;
-			this.imaginaryPart = imagPart;
-		}
-		
-		private Complex add(Complex complexToAdd)
-		{
-			double addedReal = this.realPart + complexToAdd.realPart;
-			double addedImag = this.imaginaryPart + this.imaginaryPart;
-			Complex addedComplex = new Complex(addedReal, addedImag);
-			return addedComplex;
-		}
-		
-		private Complex subtract(Complex complexToAdd)
-		{
-			double subedReal = this.realPart - complexToAdd.realPart;
-			double subedImag = this.imaginaryPart - this.imaginaryPart;
-			Complex subedComplex = new Complex(subedReal, subedImag);
-			return subedComplex;
-		}
-		
-		private Complex multiply(Complex complexToMul)
-		{
-			double mulReal = (this.realPart * complexToMul.realPart) - (this.imaginaryPart - complexToMul.imaginaryPart);
-			double mulImag = (this.realPart * complexToMul.imaginaryPart) + (complexToMul.realPart * this.imaginaryPart);
-			Complex mulComplex = new Complex(mulReal, mulImag);
-			return mulComplex;
-		}
-		
-		private double absolute()
-		{
-			return Math.hypot(realPart, imaginaryPart);
-		}
-		
-		
-	}
-	
-	public double calculateMSE(Complex[] samplesToCompare)
+	public double calculateMSE(ComplexNumber[] samplesToCompare)
 	{
 		int samplesLen = FFTResult.length;
 		double mse = 0;
 		for(int i = 0; i<samplesLen; i++)
 		{
-			Complex currentSample = FFTResult[i];
-			Complex sampleToCompare = samplesToCompare[i];
-			Complex complexDiff = currentSample.subtract(sampleToCompare);
+			ComplexNumber currentSample = FFTResult[i];
+			ComplexNumber sampleToCompare = samplesToCompare[i];
+			ComplexNumber complexDiff = currentSample.subtract(sampleToCompare);
 			mse += Math.pow(complexDiff.absolute(), 2);
 		}
-		return mse;
+		return mse/samplesLen;
 	}
 	
-	public Complex[] getTransformedSamples()
+	public ComplexNumber[] getTransformedSamples()
 	{
 		return FFTResult;
 	}
-	private static Complex[] applyHanningWindow(float[] samples)
+	
+	private static ComplexNumber[] applyHanningWindow(float[] samples)
 	{
 		int noOfSamples = samples.length;
 		int halfSamplesLength = noOfSamples/2;
-		Complex[] windowedValues = new Complex[noOfSamples];
-		for(int i = -halfSamplesLength; i<halfSamplesLength; i++)
+		ComplexNumber[] windowedValues = new ComplexNumber[noOfSamples];
+		for(int i = 0; i<noOfSamples; i++)
 		{
-			int j = i + halfSamplesLength;
-			windowedValues[j] = new Complex(samples[j] * (0.5f + 0.5f * (float) Math.cos(2.0f * (float) Math.PI * j / noOfSamples)));
+			double windowReal = samples[i] * (0.5f + 0.5f * (float) Math.cos(2.0f * (float) Math.PI * i / noOfSamples));
+			windowedValues[i] = ComplexNumbers.make(windowReal, 0);
 		}
 		return windowedValues;
 	}
 	
-	private static Complex[] performFFT(Complex[] windowedSamples, int samplesLen)
+	private static ComplexNumber[] performFFT(ComplexNumber[] windowedSamples, int samplesLen)
 	{
-		Complex[] result = new Complex[samplesLen];
+		ComplexNumber[] result = new ComplexNumber[samplesLen];
 		if(samplesLen == 1)
 			return windowedSamples;
 		
 		int samplesLenBy2 = samplesLen / 2;
 		
-		Complex[] evenSamples = new Complex[samplesLen/2];
+		ComplexNumber[] evenSamples = new ComplexNumber[samplesLen/2];
 		for (int sampleCount = 0; sampleCount < samplesLenBy2; sampleCount++) 
         {
 			try{
@@ -131,24 +83,23 @@ public class FFT
 			{
 				ex.printStackTrace();
 			}
-			
         }
-		Complex[] evenFFTSamples = performFFT(evenSamples, samplesLenBy2);
+		ComplexNumber[] evenFFTSamples = performFFT(evenSamples, samplesLenBy2);
 		
-		Complex[] oddSamples = new Complex[samplesLen/2];
+		ComplexNumber[] oddSamples = new ComplexNumber[samplesLen/2];
 		for (int sampleCount = 0; sampleCount < samplesLenBy2; sampleCount++) 
         {
 			oddSamples[sampleCount] = windowedSamples[(2 * sampleCount) + 1];
         }
-		Complex[] oddFFTSamples = performFFT(oddSamples, samplesLenBy2);
+		ComplexNumber[] oddFFTSamples = performFFT(oddSamples, samplesLenBy2);
 		
 		
 		for(int sampleCount = 0; sampleCount<samplesLenBy2; sampleCount++)
 		{
 			// 2*PI*i*k/n
 			double nthRootOfUnity = -2 * Math.PI * sampleCount / samplesLen;
-			Complex omega = new Complex(Math.cos(nthRootOfUnity), Math.sin(nthRootOfUnity));
-			Complex omegaMulOdd = omega.multiply(oddFFTSamples[sampleCount]);
+			ComplexNumber omega = ComplexNumbers.make(Math.cos(nthRootOfUnity), Math.sin(nthRootOfUnity));
+			ComplexNumber omegaMulOdd = omega.multiply(oddFFTSamples[sampleCount]);
 			result[sampleCount] = evenFFTSamples[sampleCount].add(omegaMulOdd);
 			result[sampleCount + samplesLenBy2] = evenFFTSamples[sampleCount].subtract(omegaMulOdd);
 		}
@@ -166,9 +117,4 @@ public class FFT
 		}
 		return n + 1;
 	}
-//	private static float[] padSamplesWithZaros(float[] windowedSamples)
-//	{
-//		int samplesLen = windowedSamples.length;
-//		
-//	}
 }
