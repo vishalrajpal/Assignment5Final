@@ -35,16 +35,16 @@ public class FFT
   }
 	
  /**
-  * calculateMSE : ComplexNumber[] -> double
+  * calculateMSE : ComplexNumber[] -> int
   * @param samplesToCompare : The samples to compare with the FFT samples of
   *                           this
   * @return mse : The Mean Squared Error between the 'samplesToCompare' and
   *               FFT samples of this
   */
-  public double calculateMSE(ComplexNumber[] samplesToCompare)
+  public int calculateMSE(ComplexNumber[] samplesToCompare)
   {
    int samplesLen = FFTResult.length;
-   double mse = 0;
+   int mse = 0;
    for(int i = 0; i<samplesLen; i++)
    {
     ComplexNumber currentSample = FFTResult[i];

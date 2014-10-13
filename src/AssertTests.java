@@ -10,7 +10,7 @@ public class AssertTests
  {
   if(!isTrue)
   {
-   System.err.println("ERROR "+errorMsg);
+   System.err.println("ERROR: "+errorMsg);
    System.exit(1);
   }
  }
