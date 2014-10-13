@@ -137,7 +137,7 @@ public class FFT
    for(int sampleCount = 0; sampleCount<samplesLenBy2; sampleCount++)
    {
     // 2*PI*i*k/n
-    double nthRootOfUnity = -2 * Math.PI * sampleCount / samplesLen;
+    double nthRootOfUnity = (-2 * Math.PI * sampleCount) / samplesLen;
     ComplexNumber omega = ComplexNumbers.make(Math.cos(nthRootOfUnity),
     		Math.sin(nthRootOfUnity));
     ComplexNumber omegaMulOdd = omega.multiply(oddFFTSamples[sampleCount]);
