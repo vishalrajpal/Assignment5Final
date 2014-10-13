@@ -276,7 +276,8 @@ public abstract class AudioProcessableFiles
    int endIndex = offset+numOfBytes;
    long val = 0;
    if(endIndex>arr.length)
-       return val;
+    return val;
+   
    val = arr[endIndex] & 0xFF;
    for(int i=0; i<numOfBytes; i++)
    {

@@ -80,7 +80,7 @@ public abstract class ComplexNumbers
     public ComplexNumber multiply(ComplexNumber cmplexToMul) 
     {
      double mulReal = (this.realPart * cmplexToMul.getRealPart()) 
-                      - (this.imaginaryPart - cmplexToMul.getImaginaryPart());
+                      - (this.imaginaryPart * cmplexToMul.getImaginaryPart());
      double mulImag = (this.realPart * cmplexToMul.getImaginaryPart()) 
                       + (cmplexToMul.getRealPart() * this.imaginaryPart);
      ComplexNumber mulComplex = new Create(mulReal, mulImag);
