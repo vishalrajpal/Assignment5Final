@@ -14,13 +14,13 @@ public class CommandLineArgsParser
   }
     	
   /**
-   * validCommandLineArgs : String[] -> void
+   * validateCommandLineArgs : String[] -> void
    * @param args : the comand line arguments
    * @effect: Validates the 'args' against the instance variable 'pattern', 
    * If not valid prints standard error and exits with status other than 0.
    * Assumptions: Splits the pattern by " "
    * a) if any spllitted sub pattern has '-',
-   *    assumes that the args should be same as this sub pattern
+   *    assumes that the args at that index should be same as this sub pattern
    * b) if any splitted sub pattern has '<'
    *    assumes that it is a value and does not checks it  
    */
@@ -34,7 +34,8 @@ public class CommandLineArgsParser
     }
     else
     {
-     for(int argCounter = 0; argCounter<args.length; argCounter++)
+     int argsLen = args.length;
+     for(int argCounter = 0; argCounter<argsLen; argCounter++)
      {
       String currentArg = args[argCounter];
       String patternArg = splittedPattern[argCounter];

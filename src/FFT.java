@@ -97,7 +97,7 @@ public class FFT
    ComplexNumber[] windowedValues = new ComplexNumber[noOfSamples];
    for(int i = 0; i<noOfSamples; i++)
    {
-	float piTimesIndex = (float) Math.PI * i;
+    float piTimesIndex = (float) Math.PI * i;
     double windowReal = samples[i] * 
         (0.5f + 0.5f * (float) Math.cos(2.0f * piTimesIndex / noOfSamples));
     windowedValues[i] = ComplexNumbers.make(windowReal, 0);
