@@ -13,3 +13,11 @@ c) Vishal Rajpal             rajpal.vi@husky.neu.edu
 
 Steps to compile and run the prototype on CCIS Linux Machine
 -------------------------------------------------------------
+a) Locate “dam” in the extracted directory through command
+   line.
+b) The command format is the one described in the assignment
+   “-f <pathname> -f <pathname>”
+c) Execute the command as per the example below
+   ./dam -f <pathname> -f <pathname>
+d) ”-f” should remain as it is in the command, 
+    whereas pathname can be any linux pathname. 

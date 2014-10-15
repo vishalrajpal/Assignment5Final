@@ -80,13 +80,13 @@ public abstract class AudioProcessableFiles
       
    // Instance Variables
    private long fileLength;
-   private long noOfSamplesPerChannel;
+   private int noOfSamplesPerChannel;
    private int bitsPerSample;
    private int bytesPerSample;
    private int noOfChannels;
    private int bytesPerFrame;
    private int samplesPerFrame;
-   private long frameLength;
+   private int frameLength;
    private FileInputStream audioFileInputStream;
    private File audioFile;
    private String filePath;
@@ -164,7 +164,7 @@ public abstract class AudioProcessableFiles
      // 2(Stereo)
      audioFileInputStream.read(arrayFor2Bytes);
      String noOfChanError = filePath + " The audio should be of type Stereo";
-     noOfChannels = (int)getLittleEndian(arrayFor2Bytes, 0, 2);
+     noOfChannels = (int) getLittleEndian(arrayFor2Bytes, 0, 2);
      AssertTests.assertTrue(noOfChanError, noOfChannels == STEREO_EQUIVALENT);
    
      // The Sample rate should be 44.1 kHz
@@ -196,8 +196,8 @@ public abstract class AudioProcessableFiles
  
      bytesPerFrame = bytesPerSample * noOfChannels;
      samplesPerFrame = bytesPerFrame/bytesPerSample;
-     frameLength = fileLength/bytesPerFrame;
-     noOfSamplesPerChannel = (frameLength * samplesPerFrame)/noOfChannels;
+     frameLength = (int) fileLength/bytesPerFrame;
+     noOfSamplesPerChannel = (frameLength * samplesPerFrame) / noOfChannels;
  
     } 
     catch (IOException e) 
@@ -209,7 +209,7 @@ public abstract class AudioProcessableFiles
   /* @see AudioProcessableFiles.AudioProcessableBase#readSamples() */
    public float[] readSamples()
    {
-    float[] readSamples = new float[(int) noOfSamplesPerChannel]; 
+    float[] readSamples = new float[noOfSamplesPerChannel]; 
     byte[] twoByteArray = new byte[2];
     float toDivide = (float) (2<<15);
     for(int i=0;i<noOfSamplesPerChannel;i++)
@@ -277,7 +277,7 @@ public abstract class AudioProcessableFiles
   private static long getLittleEndian(byte[] arr, int offset, int numOfBytes)
   {
    numOfBytes--;
-   int endIndex = offset+numOfBytes;
+   int endIndex = offset + numOfBytes;
    long val = 0;
    if(endIndex>arr.length)
     return val;

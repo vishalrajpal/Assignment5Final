@@ -28,13 +28,13 @@ public class CommandLineArgsParser
    {
     boolean validArgs = true;
     String[] splittedPattern = pattern.split(" ");
-    if(splittedPattern.length != args.length)
+    int argsLen = args.length;
+    if(splittedPattern.length != argsLen)
     {
      validArgs = false;
     }
     else
     {
-     int argsLen = args.length;
      for(int argCounter = 0; argCounter<argsLen; argCounter++)
      {
       String currentArg = args[argCounter];

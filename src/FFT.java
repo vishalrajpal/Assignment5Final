@@ -86,7 +86,7 @@ public class FFT
   }
 	
  /**
-  * static applyHanningWindow : folat[] -> ComplexNumber[]
+  * static applyHanningWindow : float[] -> ComplexNumber[]
   * @param samples : The samples in little endian format
   * @return windowedValues : The samples with Hanning Window function 
   * 							applied to every sample
@@ -120,12 +120,16 @@ public class FFT
     return windowedSamples;
    
    int samplesLenBy2 = samplesLen / 2;
+   
+   // Even Samples
    ComplexNumber[] evenSamples = new ComplexNumber[samplesLen/2];
    for (int sampleCount = 0; sampleCount < samplesLenBy2; sampleCount++) 
    {
     evenSamples[sampleCount] = windowedSamples[2 * sampleCount];
    }
    ComplexNumber[] evenFFTSamples = performFFT(evenSamples, samplesLenBy2);
+   
+   // Odd Samples
    ComplexNumber[] oddSamples = new ComplexNumber[samplesLen/2];
    for (int sampleCount = 0; sampleCount < samplesLenBy2; sampleCount++) 
    {
@@ -133,6 +137,7 @@ public class FFT
    }
    ComplexNumber[] oddFFTSamples = performFFT(oddSamples, samplesLenBy2);
    
+   //Combining the Even And Odd Samples
    ComplexNumber[] result = new ComplexNumber[samplesLen];
    for(int sampleCount = 0; sampleCount<samplesLenBy2; sampleCount++)
    {
