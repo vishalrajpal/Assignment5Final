@@ -11,6 +11,7 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
     private static final int first16bitsWithoutCRC = 0xFFFB;
 
     private final InputStream audioFileInputStream;
+    private final String fileName;
     private boolean isCRC = false;
 
     /**
@@ -23,6 +24,7 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
      *         MP3AudioProcessableFile
      */
     public MP3AudioProcessableFile(String filePath) {
+        this.fileName = new File(filePath).getName();
         this.audioFileInputStream = getInputStream(filePath);
         validateFile();
     }
@@ -92,6 +94,7 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
             byte lastbyte = lastHeaderByte[0];
             int intChannel = lastbyte & 0x000000C0;
             int channel = intChannel >>> 6;
+           
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,8 +115,7 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
 
     @Override
     public String getFileShortName() {
-        // TODO Auto-generated method stub
-        return null;
+        return fileName;
     }
 
     private static short byteArrToShort(byte[] x) {
