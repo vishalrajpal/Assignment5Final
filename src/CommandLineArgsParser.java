@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class CommandLineArgsParser 
 {
  /**
@@ -41,7 +44,10 @@ public class CommandLineArgsParser
       String patternArg = splittedPattern[argCounter];
       if(patternArg.charAt(0) == '-')
       {
-       if(!currentArg.equals(patternArg))
+    	ArrayList<String> allowedParams = 
+    			new ArrayList<String>(Arrays.asList(patternArg.split("\\|")));
+          
+       if(!allowedParams.contains(currentArg))
        {
     	validArgs = false;
     	break;
