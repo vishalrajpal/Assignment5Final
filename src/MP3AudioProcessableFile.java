@@ -53,11 +53,9 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
             audioFileInputStream.read(first16bits);
             short first2bytes = byteArrToShort(first16bits);
             if (first2bytes == first16bitsWithCRC) {
-                System.out.println("With CRC");
                 isCRC = true;
 
             } else if (first2bytes != first16bitsWithoutCRC) {
-                System.out.println("Without CRC");
                 isCRC = false;
             } else {
                 AssertTests.assertTrue(
@@ -75,14 +73,12 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
             // Get the bits that are required for bitRate in header
             int intBitRate = byteRateFreqPad & 0x000000F0;
             int bitRate = intBitRate >>> 4;
-            System.out.println("Bit rate: " + bitRate);
             // Bit Rate 15 is reserved; hence invalid
             AssertTests.assertTrue("Bit Rate is invalid", bitRate != 15);
 
             // Get the bits that are required for Sampling rate in header
             int intSamplingRate = byteRateFreqPad & 0x0000000C;
             int samplingRate = intSamplingRate >>> 2;
-            System.out.println("Sampling rate: " + samplingRate);
             // Sampling Rate 3 is reserved; hence invalid
             AssertTests.assertTrue("Sampling Rate is invalid",
                     samplingRate != 3);
@@ -90,14 +86,12 @@ public class MP3AudioProcessableFile implements AudioProcessableFile {
             // Get the bit that is required for padding in header
             int intPadding = byteRateFreqPad & 0x00000002;
             int padding = intSamplingRate >>> 1;
-            System.out.println("Padding: " + padding);
 
             byte[] lastHeaderByte = new byte[1];
             audioFileInputStream.read(lastHeaderByte);
             byte lastbyte = lastHeaderByte[0];
             int intChannel = lastbyte & 0x000000C0;
             int channel = intChannel >>> 6;
-            System.out.println("channel: " + channel);
 
         } catch (IOException e) {
             e.printStackTrace();
