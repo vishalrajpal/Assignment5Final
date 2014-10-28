@@ -10,7 +10,7 @@ public class dam
  */
  public static void main(String[] args)
  {
-  String pattern = "-f|-d <pathname> -f|-d <pathname>";
+  String pattern = "-f <pathname> -f <pathname>";
   CommandLineArgsParser.validateCommand(args, pattern);
   AudioProcessableFile ap = AudioProcessableFiles.make(args[1]);
   AudioProcessableFile ap1 = AudioProcessableFiles.make(args[3]);
