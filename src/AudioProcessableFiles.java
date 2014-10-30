@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 /**
  * class AudioProcessableFiles: Description: This class converts a physical path
@@ -44,7 +45,8 @@ public abstract class AudioProcessableFiles {
                 return processableFile;
             } else {
                 String exString = "ERROR: File Format not found : " + filePath;
-                IllegalArgumentException ex = new IllegalArgumentException(exString);
+                IllegalArgumentException ex = new IllegalArgumentException(
+                        exString);
                 throw ex;
             }
         } else {
@@ -317,6 +319,32 @@ public abstract class AudioProcessableFiles {
         private static final int first16bitsWithCRC = 0xFFFA;
         private static final int first16bitsWithoutCRC = 0xFFFB;
 
+        private static final HashMap<Integer, Integer> samplingRateMap = new HashMap<Integer, Integer>();
+        private static final HashMap<Integer, Integer> bitRateMap = new HashMap<Integer, Integer>();
+
+        static {
+            samplingRateMap.put(0, 44100);
+            samplingRateMap.put(1, 48000);
+            samplingRateMap.put(2, 32000);
+
+            bitRateMap.put(0, 0);
+            bitRateMap.put(1, 32000);
+            bitRateMap.put(2, 40000);
+            bitRateMap.put(3, 48000);
+            bitRateMap.put(4, 56000);
+            bitRateMap.put(5, 64000);
+            bitRateMap.put(6, 80000);
+            bitRateMap.put(7, 96000);
+            bitRateMap.put(8, 112000);
+            bitRateMap.put(9, 128000);
+            bitRateMap.put(10, 160000);
+            bitRateMap.put(11, 192000);
+            bitRateMap.put(12, 224000);
+            bitRateMap.put(13, 256000);
+            bitRateMap.put(14, 320000);
+
+        }
+
         private final InputStream audioFileInputStream;
         private final String fileName;
         private boolean isCRC = false;
@@ -325,8 +353,8 @@ public abstract class AudioProcessableFiles {
          * Constructor : String -> MP3AudioProcessableFile
          * 
          * @param filePath
-         *            : The file path for which an AudioProcessableFile has to be
-         *            created
+         *            : The file path for which an AudioProcessableFile has to
+         *            be created
          * @effect : The constructor implicitly returns an instance of type
          *         MP3AudioProcessableFile
          */
@@ -334,6 +362,9 @@ public abstract class AudioProcessableFiles {
             this.fileName = new File(filePath).getName();
             this.audioFileInputStream = getInputStream(filePath);
             validateFile();
+            validateFile();
+            validateFile();
+            // Validating three headers to confirm it is a mp3
         }
 
         private InputStream getInputStream(String filePath) {
@@ -357,6 +388,9 @@ public abstract class AudioProcessableFiles {
         public void validateFile() {
             // Reference file for validation MP3 format:
             // http://www.codeproject.com/Articles/8295/MPEG-Audio-Frame-Header
+            /*
+             * Verifying if it is Layer3 with/without CRC
+             */
             try {
                 byte[] first16bits = new byte[2];
                 audioFileInputStream.read(first16bits);
@@ -371,9 +405,8 @@ public abstract class AudioProcessableFiles {
                             "Invalid first 16 bits in the MP3 header", false);
                 }
 
-                // Reads the next byte which contains the bit rate, frequency and
-                // pad
-                // bit.
+                // Reads the next byte which contains the bit rate, frequency
+                // and padding.
                 byte[] bitRateFreqPad = new byte[1];
                 audioFileInputStream.read(bitRateFreqPad);
                 // After reading we get the byte from the array[1]
@@ -381,18 +414,21 @@ public abstract class AudioProcessableFiles {
 
                 // Get the bits that are required for bitRate in header
                 int intBitRate = byteRateFreqPad & 0x000000F0;
-                int bitRate = intBitRate >>> 4;
+                int bitRateIndex = intBitRate >>> 4;
                 // Bit Rate 15 is reserved; hence invalid
-                AssertTests.assertTrue("Bit Rate is invalid", bitRate != 15);
+                AssertTests.assertTrue("Bit Rate is invalid",
+                        bitRateIndex != 15);
+                int bitRate = bitRateMap.get(bitRateIndex);
+                System.out.println("Bit Rate: " + bitRate);
 
                 // Get the bits that are required for Sampling rate in header
                 int intSamplingRate = byteRateFreqPad & 0x0000000C;
-                int samplingRate = intSamplingRate >>> 2;
+                int samplingRateIndex = intSamplingRate >>> 2;
                 // Sampling Rate 3 is reserved; hence invalid
                 AssertTests.assertTrue("Sampling Rate is invalid",
-                        samplingRate != 3);
-                
-                System.out.println(samplingRate);
+                        samplingRateIndex != 3);
+                int samplingRate = samplingRateMap.get(samplingRateIndex);
+                System.out.println("Sampling Rate: " + samplingRate);
 
                 // Get the bit that is required for padding in header
                 int intPadding = byteRateFreqPad & 0x00000002;
@@ -403,9 +439,28 @@ public abstract class AudioProcessableFiles {
                 byte lastbyte = lastHeaderByte[0];
                 int intChannel = lastbyte & 0x000000C0;
                 int channel = intChannel >>> 6;
+                // Based on Piazza post mono or stereo can be given.
+                int FrameLengthInBytes = 144 * bitRate / samplingRate + padding;
+                System.out.println("Frame length in bytes: "
+                        + FrameLengthInBytes);
 
-//                int FrameLengthInBytes = 144 * bitRate / samplingRate + padding;
-//                System.out.println(FrameLengthInBytes);
+                // CRC is 16 bits long and, if it exists, immediately follows the
+                // frame header. After the CRC comes the audio data.
+
+                final int CRCBytes = 2;
+                final int AudioDataInBytes;
+                if (isCRC == true) {
+                    AudioDataInBytes = FrameLengthInBytes - CRCBytes;
+                    System.out.println("Data in bytes with CRC: "
+                            + AudioDataInBytes);
+                    audioFileInputStream.skip(2);
+                } else {
+                    AudioDataInBytes = FrameLengthInBytes;
+                    System.out.println("Data in bytes without CRC: "
+                            + AudioDataInBytes);
+                }
+
+                audioFileInputStream.skip(AudioDataInBytes);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -430,12 +485,11 @@ public abstract class AudioProcessableFiles {
         }
 
         private static short byteArrToShort(byte[] x) {
-            ByteBuffer wrapped = ByteBuffer.wrap(x); // big-endian by default
+            ByteBuffer wrapped = ByteBuffer.wrap(x);
             short num = wrapped.getShort();
             return num;
         }
 
     }
-
 
 }

@@ -1,0 +1,27 @@
+
+2.1.3 Bitrates (in kilobits per second)
+Bitrate Index	         MPEG 1	      
+             	Layer III
+0000	   free
+0001	    32	      
+0010		40	
+0011		48	
+0100		56	
+0101		64	
+0110	    80	
+0111	    96	
+1000		112	
+1001	    128	
+1010		160	
+1011		192	
+1100		224
+1101		256	
+1110		320	
+1111	reserved
+
+
+Sampling Rate Index	MPEG 1	
+00	               44100 Hz	
+01	               48000 Hz
+10	               32000 Hz	
+11	               reserved
