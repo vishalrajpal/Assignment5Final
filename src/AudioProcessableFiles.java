@@ -209,11 +209,12 @@ public abstract class AudioProcessableFiles {
                                 || noOfChannels == MONO_EQUIVALENT);
                 if (!isValidFile)
                     return isValidFile;
-                // The Sample rate should be 11.025 kHz or 22.05 kHz or 44.1 kHz
+                // The Sample rate should be 11.025kHz or 22.05kHz or 44.1kHz
                 // or 48kHz
                 audioFileInputStream.read(arrayFor4Bytes);
                 String samRtError = filePath
-                        + "The sampling rate should be 11.025 kHz or 22.05 kHz or 44.1 kHz or 48kHz";
+                        + "The sampling rate should be "
+                        + "11.025 kHz or 22.05 kHz or 44.1 kHz or 48kHz";
                 long samRtLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
                 isValidFile = AssertTests.assertTrue(samRtError,
                         samRtLitEnd == WAVE_SAMPLING_RATE_11025
@@ -233,7 +234,8 @@ public abstract class AudioProcessableFiles {
                 isValidFile = AssertTests
                         .assertTrue(
                                 bitError,
-                                (bitsPerSample == BITS_PER_SAMPLE_8 || bitsPerSample == BITS_PER_SAMPLE_16));
+                                (bitsPerSample == BITS_PER_SAMPLE_8 ||
+                                bitsPerSample == BITS_PER_SAMPLE_16));
                 if (!isValidFile)
                     return isValidFile;
                 bytesPerSample = bitsPerSample / 8;
@@ -280,7 +282,7 @@ public abstract class AudioProcessableFiles {
             for (int i = 0; i < noOfSamplesPerChannel; i++) {
                 try {
                     audioFileInputStream.read(twoByteArray);
-                    readSamples[i] = (float) getLittleEndian(twoByteArray, 0, 2)
+                    readSamples[i] = (float) getLittleEndian(twoByteArray,0, 2)
                             / toDivide;
                     audioFileInputStream
                             .skip(2 * noOfChannels / bytesPerSample);
@@ -293,8 +295,8 @@ public abstract class AudioProcessableFiles {
 
         /*
          * @see
-         * AudioProcessableFiles.AudioProcessableBase#compare(AudioProcessableFile
-         * )
+         * AudioProcessableFiles.AudioProcessableBase#compare
+         * (AudioProcessableFile)
          */
         public void compare(AudioProcessableFile fileToCmp) {
             if (getFileLength() != fileToCmp.getFileLength()) {
@@ -315,7 +317,7 @@ public abstract class AudioProcessableFiles {
             return fileLength;
         }
 
-        /* @see AudioProcessableFiles.AudioProcessableBase#getFileShortName() */
+        /* @see AudioProcessableFiles.AudioProcessableBase#getFileShortName()*/
         public String getFileShortName() {
             return audioFile.getName();
         }
@@ -335,7 +337,7 @@ public abstract class AudioProcessableFiles {
      * @return val : The little endian value of the values in the arr starting
      *         from 'offset' and ending at 'numOfBytes' from 'offset'
      */
-    private static long getLittleEndian(byte[] arr, int offset, int numOfBytes) {
+    private static long getLittleEndian(byte[] arr,int offset,int numOfBytes) {
         numOfBytes--;
         int endIndex = offset + numOfBytes;
         long val = 0;
@@ -359,8 +361,8 @@ public abstract class AudioProcessableFiles {
         // System.exit(0);
     }
 
-    private static String getConvertedFilePath(String filePath, String shortName) {
-        // TODO Auto-generated method stub
+    private static String getConvertedFilePath(String filePath,String shortName)
+    {
         String newFilePath = "/tmp/" + shortName + ".wav";
         ProcessBuilder pb = new ProcessBuilder("./lame", "--decode", filePath,
                 newFilePath);
@@ -379,8 +381,10 @@ public abstract class AudioProcessableFiles {
         private static final int first16bitsWithCRC = 0xFFFA;
         private static final int first16bitsWithoutCRC = 0xFFFB;
 
-        private static final HashMap<Integer, Integer> samplingRateMap = new HashMap<Integer, Integer>();
-        private static final HashMap<Integer, Integer> bitRateMap = new HashMap<Integer, Integer>();
+        private static final HashMap<Integer, Integer> samplingRateMap =
+                new HashMap<Integer, Integer>();
+        private static final HashMap<Integer, Integer> bitRateMap = 
+                new HashMap<Integer, Integer>();
 
         static {
             samplingRateMap.put(0, 44100);
@@ -470,7 +474,8 @@ public abstract class AudioProcessableFiles {
                 /**
                  * Reference file for validation MP3 format:
                  * http://www.codeproject
-                 * .com/Articles/8295/MPEG-Audio-Frame-Header Verifying if it is
+                 * .com/Articles/8295/MPEG-Audio-Frame-Header 
+                 * Verifying if it is
                  * MPEG Version 1 Layer3 with a valid Frame Sync and
                  * with/without CRC
                  */
@@ -522,7 +527,8 @@ public abstract class AudioProcessableFiles {
 
                 // Sampling Rate 3 is reserved; hence invalid
                 isValidFile = AssertTests.assertTrue(fileName
-                        + ": Sampling Rate is invalid", samplingRateIndex != 3);
+                        + ": Sampling Rate is invalid", 
+                        samplingRateIndex != 3);
                 if (!isValidFile)
                     return false;
 
@@ -541,7 +547,7 @@ public abstract class AudioProcessableFiles {
                 // Not needed unless we want to find which channel is given.
                 int channel = intChannel >>> 6;
 
-                int FrameLengthInBytes = 144 * bitRate / samplingRate + padding;
+                int FrameLengthInBytes = 144 * bitRate /samplingRate + padding;
 
                 final int CRCBytes = 2;
                 final int AudioDataInBytes;
