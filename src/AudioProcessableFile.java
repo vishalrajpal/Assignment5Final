@@ -35,7 +35,7 @@ public interface AudioProcessableFile
   * getFileShortName : -> String
   * @return String : The short name of the file corresponding to this
   */
-  String getFileShortName();
-  
-  boolean isValidFile();
+    String getFileShortName();
+
+    boolean isValidFile();
 }
