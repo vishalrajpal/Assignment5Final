@@ -8,7 +8,7 @@ public interface AudioProcessableFile
     
  /**
   * validateFile: -> void
-  * @effect: Validates the file to check if it is one of the saupported formats
+  * @effect: Validates the file to check if it is one of the supported formats
   */
   boolean validateFile(); 
   

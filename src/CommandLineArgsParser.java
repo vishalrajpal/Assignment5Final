@@ -4,9 +4,9 @@ import java.util.Arrays;
 public class CommandLineArgsParser 
 {
  /**
-  * static validateCommand : String[], Stirng -> void
+  * static validateCommand : String[], String -> void
   * @param args : The arguments passed to the command line
-  * @param pattern : The pattern against which to valudate 'args'
+  * @param pattern : The pattern against which to evaluate 'args'
   * @effect: Validates the 'args' against the 'pattern', 
   * If not valid prints standard error and exits with status other than 0.
   */
@@ -18,11 +18,11 @@ public class CommandLineArgsParser
     	
   /**
    * validateCommandLineArgs : String[] -> void
-   * @param args : the comand line arguments
+   * @param args : the command line arguments
    * @effect: Validates the 'args' against the instance variable 'pattern', 
    * If not valid prints standard error and exits with status other than 0.
    * Assumptions: Splits the pattern by " "
-   * a) if any spllitted sub pattern has '-',
+   * a) if any splitted sub pattern has '-',
    *    assumes that the args at that index should be same as this sub pattern
    * b) if any splitted sub pattern has '<'
    *    assumes that it is a value and does not checks it  
