@@ -6,10 +6,12 @@
 /AudioProcessableFiles.class
 /CommandLineArgsParser.class
 /CompareFiles.class
+
 /ComplexNumber.class
 /ComplexNumbers$ComplexNumberBase.class
 /ComplexNumbers$Create.class
 /ComplexNumbers.class
 /FFT.class
 /dam.class
+
 /lame

@@ -8,7 +8,7 @@ public interface AudioProcessableFile
     
  /**
   * validateFile: -> void
-  * @effect: Validates the file to check if it is one of the saupported formats
+  * @effect: Validates the file to check if it is one of the supported formats
   */
   boolean validateFile(); 
   
@@ -35,7 +35,7 @@ public interface AudioProcessableFile
   * getFileShortName : -> String
   * @return String : The short name of the file corresponding to this
   */
-  String getFileShortName();
-  
-  boolean isValidFile();
+    String getFileShortName();
+
+    boolean isValidFile();
 }
