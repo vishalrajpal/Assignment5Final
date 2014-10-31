@@ -141,7 +141,7 @@ public abstract class AudioProcessableFiles {
          * fetchFileIntoFileInputStream : -> void
          * 
          * @effect: Creates and loads a new FileInputStream with the file
-         *          located at 'filePath'. If file not found throws FileNotFound
+         *         located at 'filePath'. If file not found throws FileNotFound
          *          Exception.
          */
         private void fetchFileIntoFileInputStream() {
@@ -180,7 +180,7 @@ public abstract class AudioProcessableFiles {
                     return isValidFile;
                 // These 4 bytes should be 'fmt '
                 audioFileInputStream.read(arrayFor4Bytes);
-                String fmtError = filePath + " The chunk should be of type fmt";
+                String fmtError = filePath + " The chunk should be type fmt";
                 long fmtLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
                 isValidFile = AssertTests.assertTrue(fmtError,
                         fmtLitEnd == fmt_HEXA_EQUIVALENT);
@@ -198,7 +198,7 @@ public abstract class AudioProcessableFiles {
                         pcmLitEnd == AUDIO_FORMAT_EQUIVALENT);
                 if (!isValidFile)
                     return isValidFile;
-                // These 2 bytes should mention number of channels and should be
+                // These 2 bytes should mention number of channels & should be
                 // 2(Stereo) or 1(Mono)
                 audioFileInputStream.read(arrayFor2Bytes);
                 String noOfChanError = filePath
