@@ -3,7 +3,7 @@ public class dam
  /**
  * static main : String[] -> void
  * @param args : The command line arguments
- * Effect: The program sarts execution from this method.
+ * Effect: The program starts execution from this method.
  *         If the 'args' is a valid command compares the two files
  *         else prints message through standard error and exits with 
  *         status other than 0

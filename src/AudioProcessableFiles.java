@@ -361,8 +361,11 @@ public abstract class AudioProcessableFiles {
         private MP3AudioProcessableFile(String filePath) {
             this.fileName = new File(filePath).getName();
             this.audioFileInputStream = getInputStream(filePath);
+            System.out.println("First check");
             validateFile();
+            System.out.println("Second check");
             validateFile();
+            System.out.println("Third check");
             validateFile();
             // Validating three headers to confirm it is a mp3
         }
