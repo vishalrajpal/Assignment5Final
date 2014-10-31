@@ -422,12 +422,11 @@ public abstract class AudioProcessableFiles {
 
             this.audioFileInputStream = getInputStream(filePath);
             // Validating three headers to confirm it is a mp3
-            // First check: first header is being checked.
+            // First header is being checked.
             validateFile();
-            // Second check: Second header is being checked.
+            // Second header is being checked.
             validateFile();
-
-            // Third check : Third header is being checked.
+            // Third header is being checked.
             validateFile();
 
         }
@@ -521,7 +520,7 @@ public abstract class AudioProcessableFiles {
 
                 // Sampling Rate 3 is reserved; hence invalid
                 isValidFile = AssertTests.assertTrue(fileName
-                        + ":Sampling Rate is invalid", samplingRateIndex != 3);
+                        + ": Sampling Rate is invalid", samplingRateIndex != 3);
                 if (!isValidFile)
                     return false;
 
@@ -531,7 +530,6 @@ public abstract class AudioProcessableFiles {
                 int intPadding = byteRateFreqPad & 0x00000002;
                 // Obtaining the integer value.
                 int padding = intPadding >>> 1;
-                System.out.println("Padding : " + padding);
 
                 byte[] lastHeaderByte = new byte[1];
                 audioFileInputStream.read(lastHeaderByte);
@@ -548,18 +546,14 @@ public abstract class AudioProcessableFiles {
                 if (isCRC == true) {
                     // After the CRC comes the audio data.
                     AudioDataInBytes = FrameLengthInBytes - CRCBytes;
-
-                    System.out.println("Audio Data : " + AudioDataInBytes);
-
                     audioFileInputStream.skip(2);
                 } else {
                     // No CRC
                     AudioDataInBytes = FrameLengthInBytes;
 
-                    System.out.println("Audio Data: " + AudioDataInBytes);
-
                 }
 
+                // Skipping the audio data bytes to reach the next header.
                 audioFileInputStream.skip(AudioDataInBytes);
 
             } catch (IOException e) {
