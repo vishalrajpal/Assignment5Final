@@ -6,12 +6,28 @@ public class AssertTests
  * @param isTrue : if false the 'errorMsg' is printed through standard error
  *                 and the program exits through status other than 0.
  */
- public static void assertTrue(String errorMsg, boolean isTrue)
+ private static int exitStatus = 0;
+ public static boolean assertTrue(String errorMsg, boolean isTrue)
  {
   if(!isTrue)
   {
+   exitStatus = 1;
    System.err.println("ERROR: "+errorMsg);
-   System.exit(1);
+   return false;
   }
+  return isTrue;
+ }
+ 
+ public static boolean assertTrue(String errorMsg, boolean isTrue, boolean toExit)
+ {
+	 assertTrue(errorMsg,isTrue);
+	 if(!isTrue && toExit)
+		 System.exit(1);
+	 return isTrue;
+ }
+ 
+ public static void exitWithValidStatus()
+ {
+	 System.exit(exitStatus);
  }
 }

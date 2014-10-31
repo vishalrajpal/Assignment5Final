@@ -55,6 +55,6 @@ public class CommandLineArgsParser
       }
      }
     }
-    AssertTests.assertTrue("incorrect command line", validArgs);
+    AssertTests.assertTrue("incorrect command line", validArgs, true);
    }
 }

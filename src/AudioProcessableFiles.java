@@ -38,32 +38,40 @@ public abstract class AudioProcessableFiles {
             if (filePath.endsWith(".wav")) {
                 AudioProcessableFile processableFile = new WAVAudioProcessableFile(
                         filePath);
+                if(!processableFile.isValidFile())
+                	return null;
                 return processableFile;
             } else if (filePath.endsWith(".mp3")) {
-                AudioProcessableFile processableFile = new MP3AudioProcessableFile(
+            	AudioProcessableFile mp3ProcessableFile = new MP3AudioProcessableFile(filePath);
+            	if(!mp3ProcessableFile.isValidFile())
+                	return null;
+            	filePath = getConvertedFilePath(filePath,mp3ProcessableFile.getFileShortName());
+                //System.out.println("Modified FilePath: "+filePath);
+            	AudioProcessableFile wavProcessableFile = new WAVAudioProcessableFile(
                         filePath);
-                return processableFile;
+                return wavProcessableFile;
             } else {
                 String exString = "ERROR: File Format not found : " + filePath;
-                IllegalArgumentException ex = new IllegalArgumentException(
-                        exString);
-                throw ex;
+                AssertTests.assertTrue(exString, false);
+                return null;
             }
         } else {
             String exString = "ERROR: Passed Invalid File Path : " + filePath;
-            NullPointerException ex = new NullPointerException(exString);
-            throw ex;
+            AssertTests.assertTrue(exString, false);
+            return null;
         }
     }
 
     /** Implementation of AudioProcessableFile ADT */
     private static abstract class AudioProcessableBase implements
             AudioProcessableFile {
+    	protected boolean isValidFile = true;
+    	protected float[] samples = null;
         /* @see AudioProcessableFile#readSamples() */
-        public abstract float[] readSamples();
+        public abstract float[] getSamples();
 
         /* @see AudioProcessableFile#validateFile() */
-        public abstract void validateFile();
+        public abstract boolean validateFile();
 
         /* @see AudioProcessableFile#compare(AudioProcessableFile) */
         public abstract void compare(AudioProcessableFile ap);
@@ -73,6 +81,11 @@ public abstract class AudioProcessableFiles {
 
         /* @see AudioProcessableFile#getFileShortName() */
         public abstract String getFileShortName();
+        
+        public boolean isValidFile()
+        {
+        	return isValidFile;
+        }
     }
 
     /** Create new AudioProcessableFile */
@@ -99,7 +112,7 @@ public abstract class AudioProcessableFiles {
         private FileInputStream audioFileInputStream;
         private File audioFile;
         private String filePath;
-
+        
         /**
          * Constructor : String -> WAVAudioProcessableFile
          * 
@@ -132,7 +145,7 @@ public abstract class AudioProcessableFiles {
         }
 
         /* @see AudioProcessableFiles.AudioProcessableBase#validateFile() */
-        public void validateFile() {
+        public boolean validateFile() {
             byte[] arrayFor2Bytes = new byte[2];
             byte[] arrayFor4Bytes = new byte[4];
             try {
@@ -141,9 +154,10 @@ public abstract class AudioProcessableFiles {
                 audioFileInputStream.read(arrayFor4Bytes);
                 String riffErr = filePath + notSupportedFormatError;
                 long riffLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
-                AssertTests.assertTrue(riffErr,
+                isValidFile = AssertTests.assertTrue(riffErr,
                         riffLitEnd == RIFF_HEXA_EQUIVALENT);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // Skip the chunkSize
                 audioFileInputStream.skip(4);
 
@@ -151,16 +165,18 @@ public abstract class AudioProcessableFiles {
                 audioFileInputStream.read(arrayFor4Bytes);
                 String waveErr = filePath + notSupportedFormatError;
                 long waveLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
-                AssertTests.assertTrue(waveErr,
+                isValidFile = AssertTests.assertTrue(waveErr,
                         waveLitEnd == WAVE_HEXA_EQUIVALENT);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // These 4 bytes should be 'fmt '
                 audioFileInputStream.read(arrayFor4Bytes);
                 String fmtError = filePath + " The chunk should be of type fmt";
                 long fmtLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
-                AssertTests.assertTrue(fmtError,
+                isValidFile = AssertTests.assertTrue(fmtError,
                         fmtLitEnd == fmt_HEXA_EQUIVALENT);
-
+                if(!isValidFile)
+                	return false;
                 // Skip the chunkSize
                 audioFileInputStream.skip(4);
 
@@ -169,26 +185,29 @@ public abstract class AudioProcessableFiles {
                 String pcmError = filePath
                         + " The Audio Format should be of type PCM";
                 long pcmLitEnd = getLittleEndian(arrayFor2Bytes, 0, 2);
-                AssertTests.assertTrue(pcmError,
+                isValidFile = AssertTests.assertTrue(pcmError,
                         pcmLitEnd == AUDIO_FORMAT_EQUIVALENT);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // These 2 bytes should mention number of channels and should be
                 // 2(Stereo)
                 audioFileInputStream.read(arrayFor2Bytes);
                 String noOfChanError = filePath
                         + " The audio should be of type Stereo";
                 noOfChannels = (int) getLittleEndian(arrayFor2Bytes, 0, 2);
-                AssertTests.assertTrue(noOfChanError,
+                isValidFile = AssertTests.assertTrue(noOfChanError,
                         noOfChannels == STEREO_EQUIVALENT);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // The Sample rate should be 44.1 kHz
                 audioFileInputStream.read(arrayFor4Bytes);
                 String samRtError = filePath
                         + " The sampling rate should be 44.1 kHz";
                 long samRtLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
-                AssertTests.assertTrue(samRtError,
+                isValidFile = AssertTests.assertTrue(samRtError,
                         samRtLitEnd == WAVE_SAMPLING_RATE);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // Skip the ByteRate(4 Bytes) and BlockAlign(2 Bytes)
                 audioFileInputStream.skip(6);
 
@@ -196,9 +215,10 @@ public abstract class AudioProcessableFiles {
                 audioFileInputStream.read(arrayFor2Bytes);
                 String bitError = filePath + " There should be 16 bits/sample";
                 bitsPerSample = (int) getLittleEndian(arrayFor2Bytes, 0, 2);
-                AssertTests.assertTrue(bitError,
+                isValidFile = AssertTests.assertTrue(bitError,
                         bitsPerSample == BITS_PER_SAMPLE);
-
+                if(!isValidFile)
+                	return isValidFile;
                 bytesPerSample = bitsPerSample / 8;
 
                 // The data chunk gets started and should start with 'data' for
@@ -207,9 +227,10 @@ public abstract class AudioProcessableFiles {
                 String dataError = filePath
                         + " There should be a proper data chunk";
                 long dataLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
-                AssertTests.assertTrue(dataError,
+                isValidFile = AssertTests.assertTrue(dataError,
                         dataLitEnd == data_HEXA_EQUIVALENT);
-
+                if(!isValidFile)
+                	return isValidFile;
                 // The next 4 bytes determine the length of the data chunk
                 audioFileInputStream.read(arrayFor4Bytes);
                 fileLength = getLittleEndian(arrayFor4Bytes, 0, 4);
@@ -223,9 +244,18 @@ public abstract class AudioProcessableFiles {
             } catch (IOException e) {
                 AssertTests
                         .assertTrue(filePath + " Invalid File Header", false);
+                return false;
             }
+            return true;
         }
 
+        public float[] getSamples()
+        {
+        	if(samples == null)
+        		samples = readSamples();
+        	return samples;
+        }
+        
         /* @see AudioProcessableFiles.AudioProcessableBase#readSamples() */
         public float[] readSamples() {
             float[] readSamples = new float[noOfSamplesPerChannel];
@@ -252,18 +282,16 @@ public abstract class AudioProcessableFiles {
          */
         public void compare(AudioProcessableFile fileToCmp) {
             if (getFileLength() != fileToCmp.getFileLength()) {
-                printNoMatchAndExit();
+                //printNoMatchAndExit();
             }
-            FFT thisFFT = new FFT(readSamples());
-            FFT fileToCmpFFT = new FFT(fileToCmp.readSamples());
+            FFT thisFFT = new FFT(getSamples());
+            FFT fileToCmpFFT = new FFT(fileToCmp.getSamples());
             int mse = thisFFT
                     .calculateMSE(fileToCmpFFT.getTransformedSamples());
             if (mse == 0) {
                 String fileToCmpShrtName = fileToCmp.getFileShortName();
                 printMatchAndExit(getFileShortName(), fileToCmpShrtName);
-            } else {
-                printNoMatchAndExit();
-            }
+            } 
         }
 
         /* @see AudioProcessableFiles.AudioProcessableBase#getFileLength() */
@@ -275,6 +303,8 @@ public abstract class AudioProcessableFiles {
         public String getFileShortName() {
             return audioFile.getName();
         }
+        
+        
     }
 
     /**
@@ -306,14 +336,29 @@ public abstract class AudioProcessableFiles {
 
     private static void printMatchAndExit(String fileName1, String fileName2) {
         System.out.println("MATCH " + fileName1 + " " + fileName2);
-        System.exit(0);
+        //System.exit(0);
     }
 
     private static void printNoMatchAndExit() {
         System.out.println("NO MATCH");
-        System.exit(0);
+        //System.exit(0);
     }
 
+    private static String getConvertedFilePath(String filePath, String shortName) {
+		// TODO Auto-generated method stub
+		String newFilePath = "/tmp/"+shortName+".wav";
+		ProcessBuilder pb = new ProcessBuilder("./lame", "--decode", filePath, newFilePath);
+		try {
+			Process p = pb.start();
+			return newFilePath;
+		}
+		catch(IOException e)
+		{
+			AssertTests.assertTrue("Invalid File", false);
+		}
+		return null;
+	}
+    
     private static class MP3AudioProcessableFile extends AudioProcessableBase {
         // First 16bits of the header that contain the frame sync,
         // MPEG Version, Layer and Protection (CRC) bit.
@@ -361,6 +406,8 @@ public abstract class AudioProcessableFiles {
          */
         private MP3AudioProcessableFile(String filePath) {
             this.fileName = new File(filePath).getName();
+            File f = new File(filePath);
+            
             this.audioFileInputStream = getInputStream(filePath);
             // Validating three headers to confirm it is a mp3
             // First check: first header is being checked.
@@ -396,13 +443,29 @@ public abstract class AudioProcessableFiles {
         }
 
         @Override
+
         public float[] readSamples() {
             // Not needed hence returns null.
+
+        public float[] getSamples() {
+
+
             return null;
         }
 
         @Override
+
         public void validateFile() {
+
+
+        public boolean validateFile() {
+            // Reference file for validation MP3 format:
+            // http://www.codeproject.com/Articles/8295/MPEG-Audio-Frame-Header
+            /*
+             * Verifying if it is Layer3 with/without CRC
+             */
+        	if(!isValidFile())
+        		return isValidFile;
 
             try {
                 /**
@@ -422,8 +485,9 @@ public abstract class AudioProcessableFiles {
                 } else if (first2bytes != first16bitsWithoutCRC) {
                     isCRC = false;
                 } else {
-                    AssertTests.assertTrue(
+                	isValidFile = AssertTests.assertTrue(
                             "Invalid first 16 bits in the MP3 header", false);
+                	return isValidFile;
                 }
 
                 // Reads the next byte which contains the bit rate, frequency
@@ -438,21 +502,33 @@ public abstract class AudioProcessableFiles {
                 // Obtaining the integer value.
                 int bitRateIndex = intBitRate >>> 4;
                 // Bit Rate 15 is reserved; hence invalid
-                AssertTests.assertTrue("Bit Rate is invalid",
+            	isValidFile = AssertTests.assertTrue("Bit Rate is invalid",
                         bitRateIndex != 15);
+
                 // Obtaining the bit rate value from the Bit Rate Map.
+
+                if(!isValidFile)
+                	return isValidFile;
+
                 int bitRate = bitRateMap.get(bitRateIndex);
 
                 // Obtaining the bits required for Sampling rate in header.
                 int intSamplingRate = byteRateFreqPad & 0x0000000C;
                 // Obtaining the integer value.
                 int samplingRateIndex = intSamplingRate >>> 2;
+
                 // Sampling Rate 3 is reserved; hence invalid.
                 AssertTests.assertTrue("Sampling Rate is invalid",
                         samplingRateIndex != 3);
                 // Obtaining the sampling rate value from the Sampling Rate Map.
+
+                // Sampling Rate 3 is reserved; hence invalid
+            	isValidFile = AssertTests.assertTrue(fileName+":Sampling Rate is invalid",
+                        samplingRateIndex != 3);
+                if(!isValidFile)
+                	return false;
+
                 int samplingRate = samplingRateMap.get(samplingRateIndex);
-                System.out.println("Sampling Rate: " + samplingRate);
 
                 // Obtaining bit required for padding in header.
                 int intPadding = byteRateFreqPad & 0x00000002;
@@ -469,30 +545,35 @@ public abstract class AudioProcessableFiles {
                 int channel = intChannel >>> 6;
                 
                 int FrameLengthInBytes = 144 * bitRate / samplingRate + padding;
-                System.out.println("Frame length in bytes: "
-                        + FrameLengthInBytes);
 
                 final int CRCBytes = 2;
                 final int AudioDataInBytes;
                 if (isCRC == true) {
                  // After the CRC comes the audio data.
                     AudioDataInBytes = FrameLengthInBytes - CRCBytes;
+
                     System.out.println("Audio Data : "
                             + AudioDataInBytes);
+
+
                     audioFileInputStream.skip(2);
                 } else {
                     //No CRC
                     AudioDataInBytes = FrameLengthInBytes;
+
                     System.out.println("Audio Data: "
                             + AudioDataInBytes);
+
                 }
 
                 audioFileInputStream.skip(AudioDataInBytes);
 
             } catch (IOException e) {
-                e.printStackTrace();
+            	AssertTests
+                .assertTrue(fileName + " Invalid File Header", false);
+            	return false;
             }
-
+            return true;
         }
 
         @Override
