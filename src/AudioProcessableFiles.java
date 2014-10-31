@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 /**
- * class AudioProcessableFiles: Description: This class converts a physical path
+ * class AudioProcessableFiles:Description: This class converts a physical path
  * to an instance of AudioProcessableFile. The instance is only returned if and
  * only if the file is of supported type.
  * 
@@ -36,7 +36,8 @@ public abstract class AudioProcessableFiles {
     public static AudioProcessableFile make(String filePath) {
         if (filePath != null) {
             if (filePath.endsWith(".wav")) {
-                AudioProcessableFile processableFile = new WAVAudioProcessableFile(
+                AudioProcessableFile processableFile = 
+                        new WAVAudioProcessableFile(
                         filePath);
                 if (!processableFile.isValidFile())
                     return null;
@@ -49,7 +50,8 @@ public abstract class AudioProcessableFiles {
                 filePath = getConvertedFilePath(filePath,
                         mp3ProcessableFile.getFileShortName());
                 // System.out.println("Modified FilePath: "+filePath);
-                AudioProcessableFile wavProcessableFile = new WAVAudioProcessableFile(
+                AudioProcessableFile wavProcessableFile = 
+                        new WAVAudioProcessableFile(
                         filePath);
                 return wavProcessableFile;
             } else {
