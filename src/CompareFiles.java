@@ -84,7 +84,8 @@ public class CompareFiles
 			 dirOfFiles = new File(path);
 			 if(!dirOfFiles.isDirectory())
 			 {
-				 AssertTests.assertTrue(path+":Invalid Directory", false, true);
+				 AssertTests.assertTrue(path+":Invalid Directory", false, 
+						 true);
 		    	 return null;
 			 }
 			 listOfFiles = dirOfFiles.listFiles();
@@ -120,7 +121,8 @@ public class CompareFiles
 			 for(int path2Count=0; path2Count<NoOfFilesInPath2;path2Count++)
 			 {
 				 String file2Path = secondPathNameFiles[path2Count].getPath();
-				 AudioProcessableFile path2File = getProcessableFile(file2Path);
+				 AudioProcessableFile path2File = 
+						 getProcessableFile(file2Path);
 				 if(path2File==null)
 					 continue;
 				 path1File.compare(path2File);
