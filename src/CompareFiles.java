@@ -80,6 +80,7 @@ public class CompareFiles
 				path1File.compare(path2File);
 			}
 		}
+		
 		AssertTests.exitWithValidStatus();
 	}
 	

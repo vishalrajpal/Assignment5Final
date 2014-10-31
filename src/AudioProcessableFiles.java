@@ -97,8 +97,13 @@ public abstract class AudioProcessableFiles {
         private final static int data_HEXA_EQUIVALENT = 0x61746164;
         private final static int AUDIO_FORMAT_EQUIVALENT = 1;
         private final static int STEREO_EQUIVALENT = 2;
-        private final static int WAVE_SAMPLING_RATE = 44100;
-        private final static int BITS_PER_SAMPLE = 16;
+        private final static int MONO_EQUIVALENT = 1;
+        private final static int WAVE_SAMPLING_RATE_11025 = 11025;
+        private final static int WAVE_SAMPLING_RATE_22050 = 22050;
+        private final static int WAVE_SAMPLING_RATE_44100 = 44100;
+        private final static int WAVE_SAMPLING_RATE_48000 = 48000;
+        private final static int BITS_PER_SAMPLE_8 = 8;
+        private final static int BITS_PER_SAMPLE_16 = 16;
 
         // Instance Variables
         private long fileLength;
@@ -189,34 +194,34 @@ public abstract class AudioProcessableFiles {
                         pcmLitEnd == AUDIO_FORMAT_EQUIVALENT);
                 if(!isValidFile)
                 	return isValidFile;
-                // These 2 bytes should mention number of channels and should be
-                // 2(Stereo)
+                // These 2 bytes should mention number of channels and should be 
+                // 2(Stereo) or 1(Mono)
                 audioFileInputStream.read(arrayFor2Bytes);
                 String noOfChanError = filePath
-                        + " The audio should be of type Stereo";
+                        + " The audio should be of type Stereo or Mono";
                 noOfChannels = (int) getLittleEndian(arrayFor2Bytes, 0, 2);
                 isValidFile = AssertTests.assertTrue(noOfChanError,
-                        noOfChannels == STEREO_EQUIVALENT);
+                		noOfChannels == STEREO_EQUIVALENT || noOfChannels == MONO_EQUIVALENT);
                 if(!isValidFile)
                 	return isValidFile;
-                // The Sample rate should be 44.1 kHz
+                // The Sample rate should be 11.025 kHz or 22.05 kHz or 44.1 kHz or 48kHz
                 audioFileInputStream.read(arrayFor4Bytes);
                 String samRtError = filePath
-                        + " The sampling rate should be 44.1 kHz";
+                        + "The sampling rate should be 11.025 kHz or 22.05 kHz or 44.1 kHz or 48kHz";
                 long samRtLitEnd = getLittleEndian(arrayFor4Bytes, 0, 4);
                 isValidFile = AssertTests.assertTrue(samRtError,
-                        samRtLitEnd == WAVE_SAMPLING_RATE);
+                		samRtLitEnd == WAVE_SAMPLING_RATE_11025 || samRtLitEnd == WAVE_SAMPLING_RATE_22050 || samRtLitEnd == WAVE_SAMPLING_RATE_44100 || samRtLitEnd == WAVE_SAMPLING_RATE_48000);
                 if(!isValidFile)
                 	return isValidFile;
                 // Skip the ByteRate(4 Bytes) and BlockAlign(2 Bytes)
                 audioFileInputStream.skip(6);
 
-                // Bits per Sample should be 16
+                // Bits per Sample should be 8 or 16
                 audioFileInputStream.read(arrayFor2Bytes);
-                String bitError = filePath + " There should be 16 bits/sample";
+                String bitError = filePath + " There should be 8 or 16 bits/sample";
                 bitsPerSample = (int) getLittleEndian(arrayFor2Bytes, 0, 2);
                 isValidFile = AssertTests.assertTrue(bitError,
-                        bitsPerSample == BITS_PER_SAMPLE);
+                		(bitsPerSample == BITS_PER_SAMPLE_8 || bitsPerSample == BITS_PER_SAMPLE_16));
                 if(!isValidFile)
                 	return isValidFile;
                 bytesPerSample = bitsPerSample / 8;
