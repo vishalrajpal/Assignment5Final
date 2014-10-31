@@ -443,20 +443,11 @@ public abstract class AudioProcessableFiles {
         }
 
         @Override
-
-        public float[] readSamples() {
-            // Not needed hence returns null.
-
         public float[] getSamples() {
-
-
             return null;
         }
 
         @Override
-
-        public void validateFile() {
-
 
         public boolean validateFile() {
             // Reference file for validation MP3 format:
