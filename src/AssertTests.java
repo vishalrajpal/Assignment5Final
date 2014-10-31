@@ -18,7 +18,8 @@ public class AssertTests
   return isTrue;
  }
  
- public static boolean assertTrue(String errorMsg, boolean isTrue, boolean toExit)
+ public static boolean assertTrue(String errorMsg, boolean isTrue,
+         boolean toExit)
  {
 	 assertTrue(errorMsg,isTrue);
 	 if(!isTrue && toExit)
