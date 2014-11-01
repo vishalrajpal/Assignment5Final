@@ -21,15 +21,16 @@ public class AssertTests {
     return isTrue;
   }
 
-    public static boolean assertTrue(String errorMsg, boolean isTrue,
-            boolean toExit) {
-        assertTrue(errorMsg, isTrue);
-        if (!isTrue && toExit)
-            System.exit(1);
-        return isTrue;
-    }
+  public static boolean assertTrue(String errorMsg, boolean isTrue,
+		  boolean toExit) 
+  {
+     assertTrue(errorMsg, isTrue);
+     if (!isTrue && toExit) System.exit(1);
+     return isTrue;
+  }
 
-    public static void exitWithValidStatus() {
-        System.exit(exitStatus);
-    }
+  public static void exitWithValidStatus() 
+  {
+     System.exit(exitStatus);
+  }
 }
