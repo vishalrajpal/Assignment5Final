@@ -29,12 +29,12 @@ public class CompareFiles
 	  */
 	 CompareFiles(String[] args)
 	 {
-		 File[] firstPathFiles;
-		 File[] secondPathFiles;
-		 firstPathFiles = parseArgAndPath(args[0], args[1]);
-		 secondPathFiles = parseArgAndPath(args[2], args[3]);
-		 filesProcessed = new HashMap<String, AudioProcessableFile>();
-		 compareAllFiles(firstPathFiles,secondPathFiles);	
+		  File[] firstPathFiles;
+		  File[] secondPathFiles;
+		  firstPathFiles = parseArgAndPath(args[0], args[1]);
+		  secondPathFiles = parseArgAndPath(args[2], args[3]);
+		  filesProcessed = new HashMap<String, AudioProcessableFile>();
+		  compareAllFiles(firstPathFiles,secondPathFiles);	
 	 }
 	 
 	 /**
@@ -50,25 +50,25 @@ public class CompareFiles
 	  */
 	 private File[] parseArgAndPath(String arg, String path)
 	 {
-		 File[] initArr = new File[1];
-		 if(arg.equals("-d"))
-		 {
-			 initArr = validateDirAndGetFiles(path);
-		 }
-		 else
-		 {
-			 try
-			 {
-				 File getFile = new File(path);
-				 initArr[0] = getFile;
-			 }
-			 catch(Exception e)
-			 {
-				 String exString = "Invalid File Path : "+ arg;
-				 AssertTests.assertTrue(exString, false);
-			 }
-		 }
-		 return initArr;
+		  File[] initArr = new File[1];
+		  if(arg.equals("-d"))
+		  {
+			   initArr = validateDirAndGetFiles(path);
+		  }
+		  else
+		  {
+			   try
+			   {
+				    File getFile = new File(path);
+				    initArr[0] = getFile;
+			   }
+			   catch(Exception e)
+			   {
+				    String exString = "Invalid File Path : "+ arg;
+				    AssertTests.assertTrue(exString, false);
+			   }
+		  }
+		  return initArr;
 	 }
 	  
 	 /**
@@ -79,26 +79,26 @@ public class CompareFiles
 	  */
 	 private File[] validateDirAndGetFiles(String path)
 	 {
-		 File dirOfFiles;
-		 File[] listOfFiles;
-		 if(path != null)
-		 {
-			 dirOfFiles = new File(path);
-			 if(!dirOfFiles.isDirectory())
-			 {
-				 AssertTests.assertTrue(path+":Invalid Directory", false, 
-						 true);
+		  File dirOfFiles;
+		  File[] listOfFiles;
+		  if(path != null)
+		  {
+			   dirOfFiles = new File(path);
+			   if(!dirOfFiles.isDirectory())
+			   {
+				    AssertTests.assertTrue(path+":Invalid Directory", false, 
+						   true);
 		    	 return null;
-			 }
-			 listOfFiles = dirOfFiles.listFiles();
-		 }
-		 else
-		 {
-			 AssertTests.assertTrue(path+":Invalid Directory", false, 
-					 true);
-			 return null;
-		 }
-		 return listOfFiles;
+			   }
+			   listOfFiles = dirOfFiles.listFiles();
+		  }
+		  else
+		  {
+			   AssertTests.assertTrue(path+":Invalid Directory", false, 
+					   true);
+			   return null;
+		  }
+		  return listOfFiles;
 	 }
 	  
 	 /**
@@ -112,26 +112,26 @@ public class CompareFiles
 	  */
 	 private void compareAllFiles(File[] firstPathNameFiles,File[] secondPathNameFiles)
 	 {
-		 int NoOfFilesInPath1 = firstPathNameFiles.length;
-		 int NoOfFilesInPath2 = secondPathNameFiles.length;
-		 for(int path1Count=0; path1Count<NoOfFilesInPath1; path1Count++)
-		 {
-			 String file1Path = firstPathNameFiles[path1Count].getPath();
-			 AudioProcessableFile path1File = getProcessableFile(file1Path);
-			 if(path1File==null)
-				 continue;
-			 for(int path2Count=0; path2Count<NoOfFilesInPath2;path2Count++)
-			 {
-				 String file2Path = secondPathNameFiles[path2Count].getPath();
-				 AudioProcessableFile path2File = 
-						 getProcessableFile(file2Path);
-				 if(path2File==null)
-					 continue;
-				 path1File.compare(path2File);
-			 }
-		 }
-		 deleteAllMp3Files();
-		 AssertTests.exitWithValidStatus();
+		  int NoOfFilesInPath1 = firstPathNameFiles.length;
+		  int NoOfFilesInPath2 = secondPathNameFiles.length;
+		  for(int path1Count=0; path1Count<NoOfFilesInPath1; path1Count++)
+		  {
+			   String file1Path = firstPathNameFiles[path1Count].getPath();
+			   AudioProcessableFile path1File = getProcessableFile(file1Path);
+			   if(path1File==null)
+				   continue;
+			   for(int path2Count=0; path2Count<NoOfFilesInPath2;path2Count++)
+			   {
+				    String file2Path = secondPathNameFiles[path2Count].getPath();
+				    AudioProcessableFile path2File = 
+						  getProcessableFile(file2Path);
+				    if(path2File==null)
+					    continue;
+				    path1File.compare(path2File);
+			   }
+		  }
+		  deleteAllMp3Files();
+		  AssertTests.exitWithValidStatus();
 	 }
 	 
 	 /**
@@ -142,42 +142,39 @@ public class CompareFiles
 	  */
 	 private AudioProcessableFile getProcessableFile(String filePath)
 	 {
-		 AudioProcessableFile f = filesProcessed.get(filePath);
+		  AudioProcessableFile f = filesProcessed.get(filePath);
 	 	 if(f == null)
 	 	 {
-			 f = AudioProcessableFiles.make(filePath);
-			 filesProcessed.put(filePath, f);
-		 }
-		 return f;
+			   f = AudioProcessableFiles.make(filePath);
+			   filesProcessed.put(filePath, f);
+		  }
+		  return f;
 	 }
 	 
 	 /**
 	 * deleteAllMp3Files : -> void
 	 * @effect: Deletes all the files created in the '/tmp' directory
 	 */
-	private void deleteAllMp3Files()
+	 private void deleteAllMp3Files()
 	 {
-		Iterator<Entry<String, AudioProcessableFile>> mapIterator = 
-				filesProcessed.entrySet().iterator();
-		while(mapIterator.hasNext())
-		{
-			Map.Entry<String, AudioProcessableFile> currentPath = 
-					(Entry<String, AudioProcessableFile>) mapIterator.next();
+		  Iterator<Entry<String, AudioProcessableFile>> mapIterator = 
+				  filesProcessed.entrySet().iterator();
+		  while(mapIterator.hasNext())
+		  {
+			   Map.Entry<String, AudioProcessableFile> currentPath = 
+					   (Entry<String, AudioProcessableFile>) mapIterator.next();
 			
-			if(currentPath.getKey().endsWith(".mp3"))
-			{
-				AudioProcessableFile currentProc = currentPath.getValue();
-				if(currentProc!=null)
-				{
-					String toDeleteFilePath = 
-							"/tmp/"+currentProc.getFileShortName();
-					File toDeleteFile = new File(toDeleteFilePath);
-					toDeleteFile.delete();
-				}
-			}
-			
-		}
+			   if(currentPath.getKey().endsWith(".mp3"))
+			   {
+				    AudioProcessableFile currentProc = currentPath.getValue();
+				    if(currentProc!=null)
+				    {
+					     String toDeleteFilePath = 
+							      "/tmp/"+currentProc.getFileShortName();
+					     File toDeleteFile = new File(toDeleteFilePath);
+					     toDeleteFile.delete();
+				    }
+			   }		
+		  }
 	 }
-	 
-	 
 }
