@@ -1,6 +1,8 @@
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Class: CompareFiles: This class processes the paths of files/directories 
@@ -46,7 +48,7 @@ public class CompareFiles
 	  * an array and if its a file then only 1 file is stored in the array
 	  * (after checking its format and header)
 	  */
-	 File[] parseArgAndPath(String arg, String path)
+	 private File[] parseArgAndPath(String arg, String path)
 	 {
 		 File[] initArr = new File[1];
 		 if(arg.equals("-d"))
@@ -62,8 +64,8 @@ public class CompareFiles
 			 }
 			 catch(Exception e)
 			 {
-				 String exString = "ERROR: Invalid File Path : "+ arg;
-				 System.out.println(exString);
+				 String exString = "Invalid File Path : "+ arg;
+				 AssertTests.assertTrue(exString, false);
 			 }
 		 }
 		 return initArr;
@@ -75,7 +77,7 @@ public class CompareFiles
 	  * @return : checks if the path corresponds to a directory, if yes 
 	  * gets all the files present in the directory.
 	  */
-	 File[] validateDirAndGetFiles(String path)
+	 private File[] validateDirAndGetFiles(String path)
 	 {
 		 File dirOfFiles;
 		 File[] listOfFiles;
@@ -92,9 +94,9 @@ public class CompareFiles
 		 }
 		 else
 		 {
-			 String exString = "ERROR: Passed Invalid File Path : "+ path;
-		     NullPointerException ex = new NullPointerException(exString);
-		     throw ex;
+			 AssertTests.assertTrue(path+":Invalid Directory", false, 
+					 true);
+			 return null;
 		 }
 		 return listOfFiles;
 	 }
@@ -108,7 +110,7 @@ public class CompareFiles
 	  * each AudioProcessableFile obtained from the first path with each
 	  * AudioProcessableFile obtained from the second path. 
 	  */
-	 void compareAllFiles(File[] firstPathNameFiles,File[] secondPathNameFiles)
+	 private void compareAllFiles(File[] firstPathNameFiles,File[] secondPathNameFiles)
 	 {
 		 int NoOfFilesInPath1 = firstPathNameFiles.length;
 		 int NoOfFilesInPath2 = secondPathNameFiles.length;
@@ -128,6 +130,7 @@ public class CompareFiles
 				 path1File.compare(path2File);
 			 }
 		 }
+		 deleteAllMp3Files();
 		 AssertTests.exitWithValidStatus();
 	 }
 	 
@@ -137,7 +140,7 @@ public class CompareFiles
 	  * @return: AudioProcessibleFile of the given file, also the file 
 	  * is added to the HashMap.
 	  */
-	 AudioProcessableFile getProcessableFile(String filePath)
+	 private AudioProcessableFile getProcessableFile(String filePath)
 	 {
 		 AudioProcessableFile f = filesProcessed.get(filePath);
 	 	 if(f == null)
@@ -147,4 +150,34 @@ public class CompareFiles
 		 }
 		 return f;
 	 }
+	 
+	 /**
+	 * deleteAllMp3Files : -> void
+	 * @effect: Deletes all the files created in the '/tmp' directory
+	 */
+	private void deleteAllMp3Files()
+	 {
+		Iterator<Entry<String, AudioProcessableFile>> mapIterator = 
+				filesProcessed.entrySet().iterator();
+		while(mapIterator.hasNext())
+		{
+			Map.Entry<String, AudioProcessableFile> currentPath = 
+					(Entry<String, AudioProcessableFile>) mapIterator.next();
+			
+			if(currentPath.getKey().endsWith(".mp3"))
+			{
+				AudioProcessableFile currentProc = currentPath.getValue();
+				if(currentProc!=null)
+				{
+					String toDeleteFilePath = 
+							"/tmp/"+currentProc.getFileShortName();
+					File toDeleteFile = new File(toDeleteFilePath);
+					toDeleteFile.delete();
+				}
+			}
+			
+		}
+	 }
+	 
+	 
 }

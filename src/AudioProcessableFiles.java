@@ -48,12 +48,17 @@ public abstract class AudioProcessableFiles {
                     return null;
                 filePath = getConvertedFilePath(filePath,
                         mp3ProcessableFile.getFileShortName());
-                // System.out.println("Modified FilePath: "+filePath);
-                AudioProcessableFile wavProcessableFile = new WAVAudioProcessableFile(
-                        filePath);
+                AudioProcessableFile wavProcessableFile = null;
+                if(filePath != null)
+                {	
+                	wavProcessableFile = new WAVAudioProcessableFile(
+                        filePath, mp3ProcessableFile);
+                	if (!wavProcessableFile.isValidFile())
+                        return null;
+                }
                 return wavProcessableFile;
             } else {
-                String exString = "ERROR: File Format not found : " + filePath;
+                String exString = "File Format not found : " + filePath;
                 AssertTests.assertTrue(exString, false);
                 return null;
             }
@@ -69,7 +74,9 @@ public abstract class AudioProcessableFiles {
             AudioProcessableFile {
         protected boolean isValidFile = true;
         protected float[] samples = null;
-
+        protected FileInputStream audioFileInputStream;
+        protected File audioFile;
+        protected String filePath;
         /* @see AudioProcessableFile#readSamples() */
         public abstract float[] getSamples();
 
@@ -82,11 +89,28 @@ public abstract class AudioProcessableFiles {
         /* @see AudioProcessableFile#getFileLength() */
         public abstract long getFileLength();
 
-        /* @see AudioProcessableFile#getFileShortName() */
+        /* @see AudioProcessableFiles.AudioProcessableBase#getFileShortName() */
         public abstract String getFileShortName();
 
         public boolean isValidFile() {
             return isValidFile;
+        }
+        
+        /**
+         * fetchFileIntoFileInputStream : -> void
+         * 
+         * @effect: Creates and loads a new FileInputStream with the file
+         *          located at 'filePath'. If file not found throws FileNotFound
+         *          Exception.
+         */
+        protected void fetchFileIntoFileInputStream() {
+            audioFile = new File(filePath);
+            try {
+                audioFileInputStream = new FileInputStream(audioFile);
+            } catch (FileNotFoundException e) {
+                AssertTests.assertTrue(filePath + " File not found", false);
+                isValidFile = false;
+            }
         }
     }
 
@@ -116,9 +140,7 @@ public abstract class AudioProcessableFiles {
         private int bytesPerFrame;
         private int samplesPerFrame;
         private int frameLength;
-        private FileInputStream audioFileInputStream;
-        private File audioFile;
-        private String filePath;
+        private AudioProcessableFile mp3Processable = null;
 
         /**
          * Constructor : String -> WAVAudioProcessableFile
@@ -134,25 +156,18 @@ public abstract class AudioProcessableFiles {
             fetchFileIntoFileInputStream();
             validateFile();
         }
-
-        /**
-         * fetchFileIntoFileInputStream : -> void
-         * 
-         * @effect: Creates and loads a new FileInputStream with the file
-         *          located at 'filePath'. If file not found throws FileNotFound
-         *          Exception.
-         */
-        private void fetchFileIntoFileInputStream() {
-            audioFile = new File(filePath);
-            try {
-                audioFileInputStream = new FileInputStream(audioFile);
-            } catch (FileNotFoundException e) {
-                AssertTests.assertTrue(filePath + " File not found", false);
-            }
+        
+        WAVAudioProcessableFile(String filePath, AudioProcessableFile mp3File) {
+        	this.filePath = filePath;
+            fetchFileIntoFileInputStream();
+            validateFile();
+            mp3Processable = mp3File;
         }
 
         /* @see AudioProcessableFiles.AudioProcessableBase#validateFile() */
         public boolean validateFile() {
+        	if(!isValidFile())
+        		return false;
             byte[] arrayFor2Bytes = new byte[2];
             byte[] arrayFor4Bytes = new byte[4];
             try {
@@ -264,6 +279,17 @@ public abstract class AudioProcessableFiles {
             return true;
         }
 
+        /* @see AudioProcessableFiles.AudioProcessableBase#getFileShortName() */
+        public String getFileShortName() {
+        	if(mp3Processable!=null)
+        		return mp3Processable.getFileShortName();
+            return audioFile.getName();
+        }
+        
+        
+        /* (non-Javadoc)
+         * @see AudioProcessableFiles.AudioProcessableBase#getSamples()
+         */
         public float[] getSamples() {
             if (samples == null)
                 samples = readSamples();
@@ -311,12 +337,6 @@ public abstract class AudioProcessableFiles {
         public long getFileLength() {
             return fileLength;
         }
-
-        /* @see AudioProcessableFiles.AudioProcessableBase#getFileShortName() */
-        public String getFileShortName() {
-            return audioFile.getName();
-        }
-
     }
 
     /**
@@ -348,25 +368,22 @@ public abstract class AudioProcessableFiles {
 
     private static void printMatchAndExit(String fileName1, String fileName2) {
         System.out.println("MATCH " + fileName1 + " " + fileName2);
-        // System.exit(0);
-    }
-
-    private static void printNoMatchAndExit() {
-        System.out.println("NO MATCH");
-        // System.exit(0);
     }
 
     private static String getConvertedFilePath(String filePath, String shortName) {
         String newFilePath = "/tmp/" + shortName + ".wav";
-        ProcessBuilder pb = new ProcessBuilder("./lame", "--decode", filePath,
-                newFilePath);
+        //String lamePath = "/course/cs5500f14/bin/lame";
+        String lamePath = "/usr/local/bin/lame";
+        ProcessBuilder pb = new ProcessBuilder(lamePath,"--decode", filePath, 
+        		newFilePath);
         try {
             Process p = pb.start();
             return newFilePath;
         } catch (IOException e) {
             AssertTests.assertTrue("Invalid File", false);
+            return null;
         }
-        return null;
+        
     }
 
     private static class MP3AudioProcessableFile extends AudioProcessableBase {
@@ -401,8 +418,6 @@ public abstract class AudioProcessableFiles {
 
         }
 
-        private final InputStream audioFileInputStream;
-        private final String fileName;
         private boolean isCRC = false;
 
         /**
@@ -415,36 +430,9 @@ public abstract class AudioProcessableFiles {
          *         MP3AudioProcessableFile
          */
         private MP3AudioProcessableFile(String filePath) {
-            this.fileName = new File(filePath).getName();
-            File f = new File(filePath);
-
-            this.audioFileInputStream = getInputStream(filePath);
-            // Validating three headers to confirm it is a mp3
-            // First header is being checked.
+            this.filePath = filePath;
+            fetchFileIntoFileInputStream();
             validateFile();
-            // Second header is being checked.
-            validateFile();
-            // Third header is being checked.
-            validateFile();
-
-        }
-
-        /**
-         * getInputStream : String -> InputStream
-         * 
-         * @param filePath
-         * @return InputStreamn with the file located at 'filePath'. If file not
-         *         found throws FileNotFound Exception.
-         */
-        private InputStream getInputStream(String filePath) {
-            try {
-                return new FileInputStream(filePath);
-            } catch (FileNotFoundException e) {
-                AssertTests.assertTrue(filePath + " File not found", false);
-                // won't reach here since assertTrue will exit the system (dead
-                // code)
-                return null;
-            }
         }
 
         @Override
@@ -517,7 +505,7 @@ public abstract class AudioProcessableFiles {
                 // Obtaining the sampling rate value from the Sampling Rate Map.
 
                 // Sampling Rate 3 is reserved; hence invalid
-                isValidFile = AssertTests.assertTrue(fileName
+                isValidFile = AssertTests.assertTrue(filePath
                         + ": Sampling Rate is invalid", samplingRateIndex != 3);
                 if (!isValidFile)
                     return false;
@@ -556,7 +544,7 @@ public abstract class AudioProcessableFiles {
 
             } catch (IOException e) {
                 AssertTests
-                        .assertTrue(fileName + " Invalid File Header", false);
+                        .assertTrue(filePath + " Invalid File Header", false);
                 return false;
             }
             return true;
@@ -577,7 +565,7 @@ public abstract class AudioProcessableFiles {
 
         @Override
         public String getFileShortName() {
-            return fileName;
+            return audioFile.getName();
         }
 
         private static short byteArrToShort(byte[] x) {

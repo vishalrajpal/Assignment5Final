@@ -47,6 +47,8 @@ public class FFT
    int mse = 0;
    for(int i = 0; i<samplesLen; i++)
    {
+	   if(i>=samplesLen || i>=samplesToCompare.length)
+		   break;
     ComplexNumber currentSample = FFTResult[i];
     ComplexNumber sampleToCompare = samplesToCompare[i];
     ComplexNumber complexDiff = currentSample.subtract(sampleToCompare);
