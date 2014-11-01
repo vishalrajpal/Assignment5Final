@@ -21,3 +21,6 @@ c) Execute the command as per the example below
    ./dam -f <pathname> -f <pathname>
 d) ”-f” should remain as it is in the command, 
     whereas pathname can be any linux pathname. 
+    
+Third-Party Softwares
+a) lame (www.mp3dev.org) : To convert files from .mp3 format to .wav format
